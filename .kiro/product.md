@@ -30,8 +30,6 @@ Paste a commit hash or diff, and GitGroq explains what changed, why it likely ch
 
 ---
 
-## Feature Areas
-
 ### Core Features
 
 - **Commit Explanation** — Analyze a single commit and produce a structured explanation (summary, file-by-file breakdown, impact assessment).
