@@ -3,38 +3,40 @@ name: Deploy GitGroq to EC2
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Deploy to EC2 via SSH
+      - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
+
           script: |
+            echo "🚀 Starting deployment"
+
             cd ~/gitgroq
 
-            echo "Pulling latest code..."
-            git pull origin master
+            echo "📦 Syncing latest code..."
+            git fetch origin main
+            git reset --hard origin/main
+            git clean -fd
 
-            echo "Backend install..."
+            echo "📥 Backend install..."
             cd backend
             npm install
 
-            echo "Frontend build..."
+            echo "🏗 Frontend build..."
             cd ../frontend
             npm install
             npm run build
 
-            echo "Restarting PM2..."
+            echo "♻️ Restarting PM2..."
             pm2 restart all
 
-            echo "Deployment done!"
+            echo "✅ Deployment complete"
