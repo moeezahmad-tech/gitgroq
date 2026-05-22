@@ -1,4 +1,4 @@
-import { Mail, GitBranch, MessageSquare } from 'lucide-react';
+import { Mail, GitBranch, Globe } from 'lucide-react';
 
 function Contact() {
   return (
@@ -10,30 +10,32 @@ function Contact() {
 
       <div className="grid md:grid-cols-3 gap-6 mb-16">
         <a
-          href="mailto:hello@gitgroq.dev"
+          href="mailto:gitgroq@techkreative.com"
           className="flex flex-col items-center gap-3 p-6 rounded-xl border border-gray-800 bg-gray-900/50 hover:border-emerald-500/50 transition-colors"
         >
           <Mail className="w-8 h-8 text-emerald-400" />
           <span className="font-medium">Email</span>
-          <span className="text-sm text-gray-400">hello@gitgroq.dev</span>
+          <span className="text-sm text-gray-400">gitgroq@techkreative.com</span>
         </a>
         <a
-          href="https://github.com/gitgroq"
+          href="https://github.com/moeezahmad-tech/gitgroq"
           target="_blank"
           rel="noopener noreferrer"
           className="flex flex-col items-center gap-3 p-6 rounded-xl border border-gray-800 bg-gray-900/50 hover:border-emerald-500/50 transition-colors"
         >
           <GitBranch className="w-8 h-8 text-emerald-400" />
           <span className="font-medium">GitHub</span>
-          <span className="text-sm text-gray-400">Open Source</span>
+          <span className="text-sm text-gray-400">moeezahmad-tech/gitgroq</span>
         </a>
         <a
-          href="#"
+          href="https://techkreative.com"
+          target="_blank"
+          rel="noopener noreferrer"
           className="flex flex-col items-center gap-3 p-6 rounded-xl border border-gray-800 bg-gray-900/50 hover:border-emerald-500/50 transition-colors"
         >
-          <MessageSquare className="w-8 h-8 text-emerald-400" />
-          <span className="font-medium">Discord</span>
-          <span className="text-sm text-gray-400">Community</span>
+          <Globe className="w-8 h-8 text-emerald-400" />
+          <span className="font-medium">Website</span>
+          <span className="text-sm text-gray-400">techkreative.com</span>
         </a>
       </div>
 

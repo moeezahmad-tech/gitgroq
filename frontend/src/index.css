@@ -1,12 +1,54 @@
 @import "tailwindcss";
 
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+@layer base {
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  code, pre, .font-mono {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+  }
 }
 
-code, pre, .font-mono {
-  font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+/* Highlight.js GitHub Dark theme - placed outside layers for highest specificity */
+code.hljs {
+  background: transparent !important;
+  padding: 0 !important;
+  color: #c9d1d9 !important;
 }
+code.hljs .hljs-keyword,
+code.hljs .hljs-selector-tag,
+code.hljs .hljs-built_in,
+code.hljs .hljs-type { color: #ff7b72 !important; }
+code.hljs .hljs-string,
+code.hljs .hljs-attr { color: #a5d6ff !important; }
+code.hljs .hljs-comment,
+code.hljs .hljs-quote,
+code.hljs .hljs-meta { color: #8b949e !important; font-style: italic; }
+code.hljs .hljs-number,
+code.hljs .hljs-literal { color: #79c0ff !important; }
+code.hljs .hljs-title,
+code.hljs .hljs-title\.class_,
+code.hljs .hljs-title\.function_ { color: #d2a8ff !important; }
+code.hljs .hljs-variable,
+code.hljs .hljs-template-variable { color: #ffa657 !important; }
+code.hljs .hljs-name,
+code.hljs .hljs-tag { color: #7ee787 !important; }
+code.hljs .hljs-attribute { color: #79c0ff !important; }
+code.hljs .hljs-regexp,
+code.hljs .hljs-link { color: #a5d6ff !important; }
+code.hljs .hljs-symbol,
+code.hljs .hljs-bullet { color: #ffa657 !important; }
+code.hljs .hljs-section { color: #d2a8ff !important; font-weight: bold; }
+code.hljs .hljs-deletion { color: #ffa198 !important; background: rgba(248,81,73,0.1); }
+code.hljs .hljs-addition { color: #7ee787 !important; background: rgba(46,160,67,0.1); }
+code.hljs .hljs-params { color: #c9d1d9 !important; }
+code.hljs .hljs-property { color: #79c0ff !important; }
+code.hljs .hljs-punctuation { color: #c9d1d9 !important; }
+code.hljs .hljs-operator { color: #ff7b72 !important; }
+code.hljs .hljs-subst { color: #c9d1d9 !important; }
+code.hljs .hljs-emphasis { font-style: italic; }
+code.hljs .hljs-strong { font-weight: bold; }
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {

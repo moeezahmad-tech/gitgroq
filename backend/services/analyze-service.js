@@ -2,6 +2,17 @@ const axios = require('axios');
 const Analysis = require('../models/Analysis');
 
 /**
+ * Get GitHub API headers with auth token.
+ */
+function getGitHubHeaders() {
+  const headers = { 'Accept': 'application/vnd.github.v3+json', 'User-Agent': 'GitGroq-App' };
+  if (process.env.GITHUB_TOKEN) {
+    headers['Authorization'] = `Bearer ${process.env.GITHUB_TOKEN}`;
+  }
+  return headers;
+}
+
+/**
  * Parse a GitHub URL to extract owner, repo, and optional commit SHA.
  */
 function parseGitHubUrl(url) {
@@ -22,7 +33,7 @@ function parseGitHubUrl(url) {
  */
 async function fetchRepoInfo(owner, repo) {
   const response = await axios.get(`https://api.github.com/repos/${owner}/${repo}`, {
-    headers: { 'Accept': 'application/vnd.github.v3+json' },
+    headers: getGitHubHeaders(),
   });
   return response.data;
 }
@@ -33,7 +44,7 @@ async function fetchRepoInfo(owner, repo) {
 async function fetchAllCommits(owner, repo) {
   const response = await axios.get(`https://api.github.com/repos/${owner}/${repo}/commits`, {
     params: { per_page: 100 },
-    headers: { 'Accept': 'application/vnd.github.v3+json' },
+    headers: getGitHubHeaders(),
   });
   return response.data;
 }
@@ -45,15 +56,14 @@ async function fetchFileTree(owner, repo, branch = 'main') {
   try {
     const response = await axios.get(
       `https://api.github.com/repos/${owner}/${repo}/git/trees/${branch}?recursive=1`,
-      { headers: { 'Accept': 'application/vnd.github.v3+json' } }
+      { headers: getGitHubHeaders() }
     );
     return response.data.tree || [];
   } catch {
-    // Fallback to 'master' branch if 'main' doesn't exist
     try {
       const response = await axios.get(
         `https://api.github.com/repos/${owner}/${repo}/git/trees/master?recursive=1`,
-        { headers: { 'Accept': 'application/vnd.github.v3+json' } }
+        { headers: getGitHubHeaders() }
       );
       return response.data.tree || [];
     } catch {
@@ -67,7 +77,7 @@ async function fetchFileTree(owner, repo, branch = 'main') {
  */
 async function fetchCommitDetails(owner, repo, sha) {
   const response = await axios.get(`https://api.github.com/repos/${owner}/${repo}/commits/${sha}`, {
-    headers: { 'Accept': 'application/vnd.github.v3+json' },
+    headers: getGitHubHeaders(),
   });
   return response.data;
 }

@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, GitCommitHorizontal, Loader2, FileCode, AlertTriangle, FolderTree, Clock, LayoutDashboard, Info, Circle } from 'lucide-react';
+import { Search, GitCommitHorizontal, Loader2, FileCode, AlertTriangle, FolderTree, Clock, LayoutDashboard, Info, Circle, Code2 } from 'lucide-react';
 import FileTreeComponent from '../components/FileTree';
 import BubbleView from '../components/BubbleView';
+import CodeViewer from '../components/CodeViewer';
 import FullscreenWrapper from '../components/FullscreenWrapper';
 
 function Analyze() {
@@ -46,6 +47,7 @@ function Analyze() {
   const sidebarItems = [
     { id: 'summary', label: 'Summary', icon: LayoutDashboard, count: null },
     { id: 'commits', label: 'Commits', icon: Clock, count: result?.commits?.length },
+    { id: 'code', label: 'Code', icon: Code2, count: null },
     { id: 'filetree', label: 'File Tree', icon: FolderTree, count: result?.fileTree?.length },
     { id: 'bubbles', label: 'Bubble View', icon: Circle, count: null },
     { id: 'files', label: 'Changed Files', icon: FileCode, count: result?.files?.length },
@@ -53,7 +55,7 @@ function Analyze() {
   ];
 
   return (
-    <main className="max-w-7xl mx-auto px-6 py-8">
+    <main className="container mx-auto px-6 py-8">
       {/* Header + Search */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Analyze Repository</h1>
@@ -104,6 +106,7 @@ function Analyze() {
                 if (item.id === 'commits' && (!result.commits || result.commits.length === 0)) return null;
                 if (item.id === 'filetree' && (!result.fileTree || result.fileTree.length === 0)) return null;
                 if (item.id === 'bubbles' && (!result.fileTree || result.fileTree.length === 0)) return null;
+                if (item.id === 'code' && (!result.fileTree || result.fileTree.length === 0)) return null;
 
                 return (
                   <button
@@ -141,14 +144,26 @@ function Analyze() {
                     Repository Summary
                   </h2>
                   <div className="grid md:grid-cols-2 gap-3">
-                    {result.summary.map((item, index) => (
-                      <div key={index} className="flex items-start gap-3 p-4 rounded-lg bg-gray-800/40 border border-gray-700/40">
-                        <span className="text-emerald-400 font-semibold text-sm min-w-[130px] shrink-0">
-                          {item.label}
-                        </span>
-                        <span className="text-gray-200 text-sm break-all">{item.value}</span>
-                      </div>
-                    ))}
+                    {result.summary
+                      .filter((item) => item.label.toLowerCase() !== 'description')
+                      .map((item, index) => (
+                        <div key={index} className="flex items-start gap-3 p-4 rounded-lg bg-gray-800/40 border border-gray-700/40">
+                          <span className="text-emerald-400 font-semibold text-sm min-w-[130px] shrink-0">
+                            {item.label}
+                          </span>
+                          <span className="text-gray-200 text-sm break-all">{item.value}</span>
+                        </div>
+                      ))}
+                    {result.summary
+                      .filter((item) => item.label.toLowerCase() === 'description')
+                      .map((item, index) => (
+                        <div key={`desc-${index}`} className="md:col-span-2 flex items-start gap-3 p-4 rounded-lg bg-gray-800/40 border border-gray-700/40">
+                          <span className="text-emerald-400 font-semibold text-sm min-w-[130px] shrink-0">
+                            {item.label}
+                          </span>
+                          <span className="text-gray-200 text-sm break-all">{item.value}</span>
+                        </div>
+                      ))}
                   </div>
                 </div>
               </FullscreenWrapper>
@@ -180,6 +195,11 @@ function Analyze() {
                   </div>
                 </div>
               </FullscreenWrapper>
+            )}
+
+            {/* Code Tab */}
+            {activeTab === 'code' && result.fileTree && result.fileTree.length > 0 && (
+              <CodeViewer items={result.fileTree} repoUrl={repoUrl} />
             )}
 
             {/* File Tree Tab */}

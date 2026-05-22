@@ -1,4 +1,8 @@
 const { analyzeUrl } = require('../services/analyze-service');
+const Groq = require('groq-sdk');
+const axios = require('axios');
+
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 /**
  * POST /api/analyze
@@ -30,8 +34,95 @@ async function analyze(req, res, next) {
     if (err.response && err.response.status === 404) {
       return res.status(404).json({ error: { message: 'Repository or commit not found on GitHub.' } });
     }
+    if (err.response && err.response.status === 403) {
+      return res.status(429).json({ error: { message: 'GitHub API rate limit exceeded. Please wait a few minutes and try again.' } });
+    }
     next(err);
   }
 }
 
-module.exports = { analyze };
+/**
+ * POST /api/analyze/summarize
+ * Accepts { fileName, content } and returns an AI-generated summary of the file.
+ */
+async function summarizeFile(req, res, next) {
+  try {
+    const { fileName, content } = req.body;
+
+    if (!fileName || !content) {
+      return res.status(400).json({
+        error: { message: 'Both "fileName" and "content" fields are required.' },
+      });
+    }
+
+    // Truncate content to avoid token limits (keep first 4000 chars)
+    const truncatedContent = content.length > 4000 ? content.slice(0, 4000) + '\n... (truncated)' : content;
+
+    const chatCompletion = await groq.chat.completions.create({
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a code analysis assistant. Provide a brief, clear summary of the given file. Explain what the file does, its main purpose, key functions/classes, and any notable patterns. Keep it concise (2-4 sentences).',
+        },
+        {
+          role: 'user',
+          content: `Summarize this file (${fileName}):\n\n${truncatedContent}`,
+        },
+      ],
+      model: 'llama-3.3-70b-versatile',
+      temperature: 0.3,
+      max_tokens: 300,
+    });
+
+    const summary = chatCompletion.choices[0]?.message?.content || 'Unable to generate summary.';
+
+    return res.status(200).json({ summary });
+  } catch (err) {
+    console.error('Summarize error:', err.message || err);
+    if (err.status === 401 || err.message?.includes('API key') || err.message?.includes('auth')) {
+      return res.status(500).json({ error: { message: 'Groq API key is not configured or invalid.' } });
+    }
+    if (err.status === 403) {
+      return res.status(500).json({ error: { message: 'Groq API returned 403 - check your API key.' } });
+    }
+    next(err);
+  }
+}
+
+/**
+ * POST /api/analyze/file
+ * Accepts { owner, repo, path } and returns the file content.
+ */
+async function getFileContent(req, res, next) {
+  try {
+    const { owner, repo, path } = req.body;
+
+    if (!owner || !repo || !path) {
+      return res.status(400).json({
+        error: { message: '"owner", "repo", and "path" fields are required.' },
+      });
+    }
+
+    const headers = { 'Accept': 'application/vnd.github.v3+json', 'User-Agent': 'GitGroq-App' };
+    if (process.env.GITHUB_TOKEN) {
+      headers['Authorization'] = `Bearer ${process.env.GITHUB_TOKEN}`;
+    }
+
+    const response = await axios.get(
+      `https://api.github.com/repos/${owner}/${repo}/contents/${path}`,
+      { headers }
+    );
+
+    return res.status(200).json(response.data);
+  } catch (err) {
+    if (err.response && err.response.status === 404) {
+      return res.status(404).json({ error: { message: 'File not found.' } });
+    }
+    if (err.response && err.response.status === 403) {
+      return res.status(429).json({ error: { message: 'GitHub API rate limit exceeded.' } });
+    }
+    next(err);
+  }
+}
+
+module.exports = { analyze, summarizeFile, getFileContent };
