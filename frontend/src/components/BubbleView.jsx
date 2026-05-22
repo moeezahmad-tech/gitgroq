@@ -297,13 +297,16 @@ function BubbleView({ items }) {
       ctx.clearRect(0, 0, width, height);
 
       // Draw links
-      ctx.strokeStyle = '#10b98150';
-      ctx.lineWidth = 1.5;
       links.forEach((link) => {
         const source = nodes[link.source];
         const target = nodes[link.target];
         if (!source || !target) return;
 
+        const depthColors = ['#10b981', '#60a5fa', '#a78bfa', '#fb923c', '#4ade80', '#f472b6', '#22d3ee', '#fbbf24'];
+        const colorIndex = ((target.depth || 1) - 1) % depthColors.length;
+
+        ctx.strokeStyle = depthColors[colorIndex] + '40';
+        ctx.lineWidth = 1.5;
         ctx.beginPath();
         ctx.moveTo(source.x, source.y);
         ctx.lineTo(target.x, target.y);
@@ -318,12 +321,26 @@ function BubbleView({ items }) {
         const isExpanded = node.isExpanded;
         const radius = isRoot ? 28 : isFolder ? 22 : 14;
 
+        // Depth-based color palette for nested levels
+        const depthColors = [
+          { fill: '#064e3b', stroke: '#10b981' },  // depth 0 - emerald
+          { fill: '#1e3a5f', stroke: '#60a5fa' },  // depth 1 - blue
+          { fill: '#3b1f5e', stroke: '#a78bfa' },  // depth 2 - purple
+          { fill: '#5c2d1e', stroke: '#fb923c' },  // depth 3 - orange
+          { fill: '#1a3a2a', stroke: '#4ade80' },  // depth 4 - green
+          { fill: '#4a1942', stroke: '#f472b6' },  // depth 5 - pink
+          { fill: '#1e3a4a', stroke: '#22d3ee' },  // depth 6 - cyan
+          { fill: '#4a3b1e', stroke: '#fbbf24' },  // depth 7 - amber
+        ];
+        const depthIndex = (node.depth || 0) % depthColors.length;
+        const depthColor = depthColors[depthIndex];
+
         // Glow effect
         if (isHovered || isRoot) {
           ctx.beginPath();
           ctx.arc(node.x, node.y, radius + 6, 0, Math.PI * 2);
           const gradient = ctx.createRadialGradient(node.x, node.y, radius, node.x, node.y, radius + 8);
-          gradient.addColorStop(0, isRoot ? 'rgba(16, 185, 129, 0.3)' : isFolder ? 'rgba(234, 179, 8, 0.2)' : 'rgba(96, 165, 250, 0.2)');
+          gradient.addColorStop(0, isRoot ? 'rgba(16, 185, 129, 0.3)' : `${depthColor.stroke}33`);
           gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
           ctx.fillStyle = gradient;
           ctx.fill();
@@ -337,11 +354,11 @@ function BubbleView({ items }) {
           ctx.fillStyle = '#064e3b';
           ctx.strokeStyle = '#10b981';
         } else if (isFolder) {
-          ctx.fillStyle = isExpanded ? '#1a3a2a' : '#2a2a1a';
-          ctx.strokeStyle = isExpanded ? '#10b981' : '#eab308';
+          ctx.fillStyle = depthColor.fill;
+          ctx.strokeStyle = depthColor.stroke;
         } else {
-          ctx.fillStyle = '#1e293b';
-          ctx.strokeStyle = '#475569';
+          ctx.fillStyle = depthColor.fill;
+          ctx.strokeStyle = depthColor.stroke + '99';
         }
 
         ctx.lineWidth = isHovered ? 2.5 : 2;
