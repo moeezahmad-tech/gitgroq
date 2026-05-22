@@ -3,7 +3,7 @@ name: Deploy GitGroq to EC2
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   deploy:
@@ -23,8 +23,8 @@ jobs:
             cd ~/gitgroq
 
             echo "📦 Syncing latest code..."
-            git fetch origin main
-            git reset --hard origin/main
+            git fetch origin master
+            git reset --hard origin/master
             git clean -fd
 
             echo "📥 Backend install..."
