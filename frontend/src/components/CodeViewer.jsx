@@ -111,6 +111,7 @@ function CodeViewer({ items, repoUrl }) {
   const [fileError, setFileError] = useState('');
   const [fileSummary, setFileSummary] = useState('');
   const [loadingSummary, setLoadingSummary] = useState(false);
+  const [imageDataUrl, setImageDataUrl] = useState(null);
 
   useEffect(() => {
     if (fileContent) {
@@ -159,6 +160,12 @@ function CodeViewer({ items, repoUrl }) {
     setLoadingFile(true);
     setFileSummary('');
     setLoadingSummary(false);
+    setImageDataUrl(null);
+
+    // Check if file is an image
+    const ext = filePath.split('.').pop().toLowerCase();
+    const imageExts = ['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'ico', 'bmp'];
+    const isImage = imageExts.includes(ext);
 
     try {
       const apiUrl = import.meta.env.VITE_API_URL || '';
@@ -172,8 +179,18 @@ function CodeViewer({ items, repoUrl }) {
 
       const data = await response.json();
 
-      if (data.encoding === 'base64' && data.content) {
-        const decoded = atob(data.content.replace(/\n/g, ''));
+      if (isImage && data.content) {
+        // Render as image
+        const mimeMap = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', gif: 'image/gif', svg: 'image/svg+xml', webp: 'image/webp', ico: 'image/x-icon', bmp: 'image/bmp' };
+        const mime = mimeMap[ext] || 'image/png';
+        setImageDataUrl(`data:${mime};base64,${data.content.replace(/\n/g, '')}`);
+      } else if (data.encoding === 'base64' && data.content) {
+        const binaryStr = atob(data.content.replace(/\n/g, ''));
+        const bytes = new Uint8Array(binaryStr.length);
+        for (let i = 0; i < binaryStr.length; i++) {
+          bytes[i] = binaryStr.charCodeAt(i);
+        }
+        const decoded = new TextDecoder('utf-8').decode(bytes);
         setFileContent(decoded);
 
         // Fetch AI summary
@@ -204,7 +221,7 @@ function CodeViewer({ items, repoUrl }) {
   };
 
   return (
-    <div className="flex rounded-xl border border-gray-800 bg-gray-900/50 overflow-hidden h-[calc(100vh-280px)]">
+    <div className="w-full flex rounded-xl border border-gray-800 bg-gray-900/50 overflow-hidden h-[calc(100vh-280px)]">
       {/* File Tree Sidebar */}
       <div className="w-64 shrink-0 border-r border-gray-800 overflow-y-auto p-2">
         <div className="font-mono">
@@ -251,6 +268,14 @@ function CodeViewer({ items, repoUrl }) {
                 </div>
               ) : fileError ? (
                 <p className="text-red-400 text-sm">{fileError}</p>
+              ) : imageDataUrl ? (
+                <div className="flex items-center justify-center h-full">
+                  <img
+                    src={imageDataUrl}
+                    alt={selectedFile}
+                    className="max-w-full max-h-full object-contain rounded-lg border border-gray-700/50"
+                  />
+                </div>
               ) : (
                 <div className="text-sm font-mono leading-relaxed flex">
                   <div className="text-gray-600 select-none pr-4 text-right shrink-0 pt-0">

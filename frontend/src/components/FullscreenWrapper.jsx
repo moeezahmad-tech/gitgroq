@@ -31,7 +31,7 @@ function FullscreenWrapper({ children, title }) {
   return (
     <>
       {/* Normal view with fullscreen button */}
-      <div className="relative">
+      <div className="relative w-full">
         <button
           onClick={toggleFullscreen}
           className="absolute top-3 right-3 z-40 p-2 rounded-lg bg-gray-800/90 border border-gray-700/50 text-gray-400 hover:text-white hover:bg-gray-700 transition-colors backdrop-blur-sm"

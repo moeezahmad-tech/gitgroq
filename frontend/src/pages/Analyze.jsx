@@ -163,14 +163,16 @@ function Analyze() {
   ];
 
   return (
-    <main className="container mx-auto px-6 py-8">
-      {/* Header + Search */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Analyze Repository</h1>
-        <p className="text-gray-400 mb-6">
+    <main className="w-full px-6 mb-6">
+      {/* Header + Search — centered like Home page */}
+      <section className="py-16 text-center max-w-6xl mx-auto">
+        <h1 className="text-4xl font-bold mb-3 tracking-tight">
+          Analyze a <span className="text-emerald-400">Repository</span>
+        </h1>
+        <p className="text-lg text-gray-400 max-w-xl mx-auto mb-8">
           Paste a GitHub repo URL or commit link to get a full breakdown.
         </p>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="max-w-2xl mx-auto">
           <div className="flex gap-3">
             <div className="relative flex-1">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
@@ -192,11 +194,11 @@ function Analyze() {
             </button>
           </div>
         </form>
-      </div>
+      </section>
 
       {/* Error State */}
       {error && (
-        <div className="flex items-center gap-3 p-4 rounded-lg border border-red-500/30 bg-red-500/10 mb-8">
+        <div className="max-w-2xl mx-auto flex items-center gap-3 p-4 rounded-lg border border-red-500/30 bg-red-500/10 mb-8">
           <AlertTriangle className="w-5 h-5 text-red-400 shrink-0" />
           <p className="text-red-300 text-sm">{error}</p>
         </div>
@@ -204,7 +206,7 @@ function Analyze() {
 
       {/* Results with Sidebar */}
       {result && (
-        <div className="flex gap-6">
+        <div className="w-full flex gap-6">
           {/* Sidebar */}
           <aside className="w-56 shrink-0">
             <nav className="sticky top-24 space-y-1 p-3 rounded-xl border border-gray-800 bg-gray-900/50">
@@ -246,7 +248,7 @@ function Analyze() {
             {/* Summary Tab */}
             {activeTab === 'summary' && result.summary && (
               <FullscreenWrapper title="Repository Summary">
-                <div className="p-6 rounded-xl border border-gray-800 bg-gray-900/50">
+                <div className="w-full p-6 rounded-xl border border-gray-800 bg-gray-900/50">
                   <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
                     <LayoutDashboard className="w-6 h-6 text-emerald-400" />
                     Repository Summary
@@ -280,7 +282,7 @@ function Analyze() {
             {/* Commits Tab */}
             {activeTab === 'commits' && result.commits && result.commits.length > 0 && (
               <FullscreenWrapper title="All Commits">
-                <div className="p-6 rounded-xl border border-gray-800 bg-gray-900/50">
+                <div className="w-full p-6 rounded-xl border border-gray-800 bg-gray-900/50">
                   <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
                     <Clock className="w-6 h-6 text-emerald-400" />
                     All Commits
@@ -415,13 +417,15 @@ function Analyze() {
 
             {/* Code Tab */}
             {activeTab === 'code' && result.fileTree && result.fileTree.length > 0 && (
-              <CodeViewer items={result.fileTree} repoUrl={repoUrl} />
+              <div className="w-full">
+                <CodeViewer items={result.fileTree} repoUrl={repoUrl} />
+              </div>
             )}
 
             {/* File Tree Tab */}
             {activeTab === 'filetree' && result.fileTree && result.fileTree.length > 0 && (
               <FullscreenWrapper title="File Tree">
-                <div className="p-6 rounded-xl border border-gray-800 bg-gray-900/50">
+                <div className="w-full p-6 rounded-xl border border-gray-800 bg-gray-900/50">
                   <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
                     <FolderTree className="w-6 h-6 text-emerald-400" />
                     File Tree
@@ -437,7 +441,7 @@ function Analyze() {
             {/* Bubble View Tab */}
             {activeTab === 'bubbles' && result.fileTree && result.fileTree.length > 0 && (
               <FullscreenWrapper title="Bubble View">
-                <div className="p-6 rounded-xl border border-gray-800 bg-gray-900/50">
+                <div className="w-full p-6 rounded-xl border border-gray-800 bg-gray-900/50">
                   <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
                     <Circle className="w-6 h-6 text-emerald-400" />
                     Bubble View
@@ -451,7 +455,7 @@ function Analyze() {
             {/* Changed Files Tab */}
             {activeTab === 'files' && result.files && result.files.length > 0 && (
               <FullscreenWrapper title="Changed Files">
-                <div className="p-6 rounded-xl border border-gray-800 bg-gray-900/50">
+                <div className="w-full p-6 rounded-xl border border-gray-800 bg-gray-900/50">
                   <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
                     <FileCode className="w-6 h-6 text-emerald-400" />
                     Changed Files
@@ -480,7 +484,7 @@ function Analyze() {
             {/* Impact Tab */}
             {activeTab === 'impact' && result.impact && (
               <FullscreenWrapper title="Impact Assessment">
-                <div className="p-6 rounded-xl border border-gray-800 bg-gray-900/50">
+                <div className="w-full p-6 rounded-xl border border-gray-800 bg-gray-900/50">
                   <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
                     <Info className="w-6 h-6 text-emerald-400" />
                     Impact Assessment
@@ -495,9 +499,9 @@ function Analyze() {
 
       {/* Empty State */}
       {!result && !loading && !error && (
-        <div className="text-center py-20 text-gray-600">
-          <img src="/GitGrok.png" alt="GitGrok Logo" className="w-20 h-20 mx-auto mb-4 opacity-20 rounded-xl" />
-          <p className="text-lg">Paste a repo or commit URL above to get started</p>
+        <div className="text-center py-12 text-gray-600">
+          <img src="/GitGrok.png" alt="GitGrok Logo" className="w-16 h-16 mx-auto mb-4 opacity-20 rounded-xl" />
+          <p className="text-base">Enter a URL above to get started</p>
         </div>
       )}
     </main>
