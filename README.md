@@ -7,7 +7,7 @@
 
 
 <p align="center">
-  Paste a GitHub repo URL or commit hash — GitGrok explains what changed, why it likely changed, and what impact it has.
+  Paste a GitHub repo URL or commit hash, GitGrok explains what changed, why it likely changed, and what impact it has.
 </p>
 
 <p align="center">
@@ -25,7 +25,7 @@
 
 | Feature | Description |
 |---------|-------------|
-| **Repository Analysis** | Fetch full repo details — stars, forks, language, license, and more |
+| **Repository Analysis** | Fetch full repo details, stars, forks, language, license, and more |
 | **Commit History** | View up to 100 recent commits with author, date, and message |
 | **File Tree** | Collapsible nested directory tree with folder/file icons |
 | **Bubble View** | Interactive force-directed graph showing repo structure with drag & expand |
@@ -226,11 +226,11 @@ npm run lint     # Run ESLint
 
 ## 📋 Architecture Principles
 
-1. **Models** define Mongoose schemas only — no business logic
-2. **Services** contain business logic — framework-agnostic
-3. **Controllers** handle request/response — call services, never touch DB directly
-4. **Routes** are thin — map HTTP verbs to controllers
-5. **Components** follow separation — presentational vs. feature vs. page
+1. **Models** define Mongoose schemas only, no business logic
+2. **Services** contain business logic, framework-agnostic
+3. **Controllers** handle request/response, call services, never touch DB directly
+4. **Routes** are thin, map HTTP verbs to controllers
+5. **Components** follow separation, presentational vs. feature vs. page
 
 ---
 
@@ -247,11 +247,11 @@ npm run lint     # Run ESLint
 
 ## 📄 License
 
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License, see the [LICENSE](LICENSE) file for details.
 
 ---
 
 <p align="center">
   A project of (Techkreative.)[https://techkreative.com]<br/>
-  <strong>GitGrok</strong> — Understand code, not just read it.
+  <strong>GitGrok</strong>, Understand code, not just read it.
 </p>

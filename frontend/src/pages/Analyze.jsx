@@ -89,7 +89,7 @@ function Analyze() {
               setSummaryCache((prev) => ({ ...prev, [sha]: summaryData.summary }));
             }
           })
-          .catch(() => {}) // Silently fail — summary is optional
+          .catch(() => {}) // Silently fail, summary is optional
           .finally(() => setSummaryLoading(false));
       }
     } catch (err) {
@@ -164,7 +164,7 @@ function Analyze() {
 
   return (
     <main className="w-full px-6 mb-6">
-      {/* Header + Search — centered like Home page */}
+      {/* Header + Search, centered like Home page */}
       <section className="py-16 text-center max-w-6xl mx-auto">
         <h1 className="text-4xl font-bold mb-3 tracking-tight">
           Analyze a <span className="text-emerald-400">Repository</span>

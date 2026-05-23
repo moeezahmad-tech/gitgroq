@@ -192,7 +192,7 @@ function Footer() {
                       className="text-gray-400 hover:text-emerald-400 transition-colors"
                       aria-label="GitGroq GitHub repository (opens in new tab)"
                     >
-                      GitHub — moeezahmad-tech/gitgroq
+                      GitHub, moeezahmad-tech/gitgroq
                     </a>
                   </li>
                   <li>

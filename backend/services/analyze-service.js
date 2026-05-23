@@ -83,7 +83,7 @@ async function fetchCommitDetails(owner, repo, sha) {
 }
 
 /**
- * Analyze a GitHub URL — fetches repo/commit data and generates structured results.
+ * Analyze a GitHub URL, fetches repo/commit data and generates structured results.
  */
 async function analyzeUrl(url) {
   const parsed = parseGitHubUrl(url);

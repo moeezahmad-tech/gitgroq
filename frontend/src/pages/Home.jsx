@@ -9,7 +9,7 @@ function Home() {
           <img src="/GitGrok.png" alt="GitGrok Logo" className="w-20 h-20 rounded-2xl" style={{ filter: "drop-shadow(0 4px 6px rgba(16, 185, 129, 0.2))" }} />
         </div>
         <h1 className="text-5xl font-bold mb-4 tracking-tight">
-          Understand any commit in
+          Understand any Repository in
           <span className="text-emerald-400"> plain language</span>
         </h1>
         <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-8">
@@ -31,7 +31,7 @@ function Home() {
           <Zap className="w-8 h-8 text-emerald-400 mb-4" />
           <h3 className="text-lg font-semibold mb-2">Commit Explanation</h3>
           <p className="text-gray-400 text-sm">
-            Analyze a single commit and get a structured explanation — summary, file-by-file breakdown, and impact assessment.
+            Analyze a single commit and get a structured explanation, summary, file-by-file breakdown, and impact assessment.
           </p>
         </div>
         <div className="p-6 rounded-xl border border-gray-800 bg-gray-900/50">
@@ -77,18 +77,18 @@ function Home() {
       <section className="py-16 border-t border-gray-800">
         <h2 className="text-3xl font-bold text-center mb-4">See It in Action</h2>
         <p className="text-gray-400 text-center mb-12 max-w-2xl mx-auto">
-          Explore commits, file trees, and visualizations — all from a single repo URL.
+          Explore commits, file trees, and visualizations, all from a single repo URL.
         </p>
         <div className="space-y-16">
           {/* Row 1: Image left, Text right */}
           <div className="flex flex-wrap items-center gap-8">
             <div className="flex-1 min-w-[300px]">
-              <img src="/Commits.png" alt="Commits view showing repository commit history" className="w-full rounded-xl border border-gray-800" />
+              <img src="/Commits.png" alt="Commits view showing repository commit history" className="w-full rounded-xl " />
             </div>
             <div className="flex-1 min-w-[300px]">
               <h3 className="text-white font-semibold text-2xl mb-3">Commits</h3>
               <p className="text-gray-400 leading-relaxed">
-                Browse and understand every commit in the repository. Get a clear timeline of changes with author info, dates, and commit messages — all in one view.
+                Browse and understand every commit in the repository. Get a clear timeline of changes with author info, dates, and commit messages, all in one view.
               </p>
             </div>
           </div>
@@ -96,7 +96,7 @@ function Home() {
           {/* Row 2: Text left, Image right (reverse) */}
           <div className="flex flex-wrap-reverse md:flex-wrap items-center gap-8 md:flex-row-reverse">
             <div className="flex-1 min-w-[300px]">
-              <img src="/FileTree.png" alt="File tree view showing repository structure" className="w-full rounded-xl border border-gray-800" />
+              <img src="/FileTree.png" alt="File tree view showing repository structure" className="w-full rounded-xl" />
             </div>
             <div className="flex-1 min-w-[300px]">
               <h3 className="text-white font-semibold text-2xl mb-3">File Tree</h3>
@@ -109,7 +109,7 @@ function Home() {
           {/* Row 3: Image left, Text right */}
           <div className="flex flex-wrap items-center gap-8">
             <div className="flex-1 min-w-[300px]">
-              <img src="/BubbleView.png" alt="Bubble view visualization of repository structure" className="w-full rounded-xl border border-gray-800" />
+              <img src="/BubbleView.png" alt="Bubble view visualization of repository structure" className="w-full rounded-xl " />
             </div>
             <div className="flex-1 min-w-[300px]">
               <h3 className="text-white font-semibold text-2xl mb-3">Bubble View</h3>

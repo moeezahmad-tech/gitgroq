@@ -104,7 +104,7 @@ function buildGraph(flatList, expandedPaths) {
 }
 
 /**
- * Force-directed graph simulation — initial setup.
+ * Force-directed graph simulation, initial setup.
  * Now handled inline during graph rebuild (spawn near parent).
  */
 function forceSimulation(nodes, links, width, height) {

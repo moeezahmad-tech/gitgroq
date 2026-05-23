@@ -58,7 +58,7 @@ function About() {
           <tbody className="divide-y divide-gray-800">
             <tr><td className="px-5 py-3 font-mono text-emerald-400">Explanation</td><td className="px-5 py-3 text-gray-400">The AI-generated breakdown of a commit or diff</td></tr>
             <tr><td className="px-5 py-3 font-mono text-emerald-400">Grok</td><td className="px-5 py-3 text-gray-400">To understand intuitively (from Heinlein, adopted by dev culture)</td></tr>
-            <tr><td className="px-5 py-3 font-mono text-emerald-400">Commit</td><td className="px-5 py-3 text-gray-400">A git commit — the primary input unit</td></tr>
+            <tr><td className="px-5 py-3 font-mono text-emerald-400">Commit</td><td className="px-5 py-3 text-gray-400">A git commit, the primary input unit</td></tr>
             <tr><td className="px-5 py-3 font-mono text-emerald-400">Diff</td><td className="px-5 py-3 text-gray-400">The textual representation of changes between two states</td></tr>
             <tr><td className="px-5 py-3 font-mono text-emerald-400">Impact</td><td className="px-5 py-3 text-gray-400">The assessed effect of a change on the broader codebase</td></tr>
           </tbody>

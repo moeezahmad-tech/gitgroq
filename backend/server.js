@@ -9,7 +9,7 @@ const PORT = process.env.PORT || 5000;
 // Connect to MongoDB
 connectDB();
 
-// CORS configuration — allow all origins in development
+// CORS configuration, allow all origins in development
 app.use(cors());
 
 // Body parsing
