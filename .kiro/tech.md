@@ -15,10 +15,9 @@ GitGroq is "The AI Commit Explainer" — a full-stack tool that analyzes git com
 
 ### Frontend (`/frontend`)
  
-- **Framework:** Next.js (App Router)
+- **Framework:** React.js 
 - **Styling:** Tailwind CSS
 - **Icons:** Lucide React
-- **Component Pattern:** Standard component separation (presentational vs. container)
 
 ---
 
@@ -62,35 +61,37 @@ backend/
 ### Directory Structure
 
 ```
-frontend/
-├── app/              # Next.js App Router pages and layouts
-│   ├── layout.js     # Root layout
-│   ├── page.js       # Home page
-│   └── [feature]/    # Feature-specific routes
-├── components/       # Reusable UI components
-│   ├── ui/           # Primitive/presentational components (Button, Card, Input)
-│   └── [feature]/    # Feature-specific composed components
-├── lib/              # Utilities, API client, helpers
-├── hooks/            # Custom React hooks
-├── styles/           # Global styles and Tailwind config
-└── public/           # Static assets
+frontend
+├── public/               # Static assets (logo, icons)
+│   ├── src/
+│   │   ├── components/       # Reusable UI components
+│   │   │   ├── BubbleView.jsx        # Force-directed graph visualization
+│   │   │   ├── FileTree.jsx           # Collapsible file tree
+│   │   │   ├── FullscreenWrapper.jsx  # Fullscreen overlay component
+│   │   │   ├── MarkdownRenderer.jsx   # Markdown display
+│   │   │   └── Navbar.jsx             # Navigation bar
+│   │   ├── pages/            # Route pages
+│   │   │   ├── Home.jsx      # Landing page
+│   │   │   ├── Analyze.jsx   # Main analysis dashboard
+│   │   │   ├── About.jsx     # About & principles
+│   │   │   ├── Contact.jsx   # Contact form
+│   │   │   └── NotFound.jsx  # 404 page
+│   │   ├── lib/              # API client & utilities
+│   │   ├── App.jsx           # Root component with routing
+│   │   ├── main.jsx          # Entry point
+│   │   └── index.css         # Global styles & Tailwind
+│   ├── index.html            # HTML template
+│   └── vite.config.js        # Vite configuration
 ```
 
-### Component Separation
+### Architecture Principles
 
-1. **Presentational components** (`components/ui/`) — stateless, accept props, render UI. No data fetching.
-2. **Feature components** (`components/[feature]/`) — compose presentational components, may manage local state.
-3. **Page components** (`app/`) — handle data fetching (server components) and layout composition.
-4. **Hooks** (`hooks/`) — encapsulate reusable stateful logic.
+1. **Models** define Mongoose schemas only — no business logic
+2. **Services** contain business logic — framework-agnostic
+3. **Controllers** handle request/response — call services, never touch DB directly
+4. **Routes** are thin — map HTTP verbs to controllers
+5. **Components** follow separation — presentational vs. feature vs. page
 
-### Frontend Standards
-
-- Use server components by default. Add `'use client'` only when interactivity is required.
-- Tailwind classes for all styling. No inline style objects or CSS modules unless absolutely necessary.
-- Icons exclusively from `lucide-react`. Import individually (e.g., `import { GitCommit } from 'lucide-react'`).
-- One component per file. Name files in PascalCase matching the export (e.g., `CommitCard.jsx`).
-- Colocate tests next to their component (`CommitCard.test.jsx`).
-- API calls go through a centralized client in `lib/api.js`, not scattered `fetch` calls in components.
 
 ---
 
