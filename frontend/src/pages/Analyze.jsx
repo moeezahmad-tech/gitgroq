@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, GitCommitHorizontal, Loader2, FileCode, AlertTriangle, FolderTree, Clock, LayoutDashboard, Info, Circle, Code2 } from 'lucide-react';
+import { Search, GitCommitHorizontal, Loader2, FileCode, AlertTriangle, FolderTree, Clock, LayoutDashboard, Info, Circle, Code2, ChevronDown } from 'lucide-react';
 import FileTreeComponent from '../components/FileTree';
 import BubbleView from '../components/BubbleView';
 import CodeViewer from '../components/CodeViewer';
@@ -14,6 +14,77 @@ function Analyze() {
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('summary');
 
+  // Accordion state for commit diffs
+  const [expandedSha, setExpandedSha] = useState(null);
+  const [diffCache, setDiffCache] = useState({});
+  const [diffLoading, setDiffLoading] = useState(false);
+  const [diffError, setDiffError] = useState(null);
+
+  // Extract owner/repo from the URL for commit-diff API calls
+  function parseOwnerRepo(url) {
+    const match = url.match(/github\.com\/([^/]+)\/([^/]+)/);
+    if (!match) return { owner: '', repo: '' };
+    return { owner: match[1], repo: match[2].replace(/\.git$/, '') };
+  }
+
+  // Accordion click handler
+  const handleCommitClick = async (sha) => {
+    // Toggle: clicking the same commit closes it
+    if (expandedSha === sha) {
+      setExpandedSha(null);
+      return;
+    }
+
+    // If cached, just expand
+    if (diffCache[sha]) {
+      setExpandedSha(sha);
+      return;
+    }
+
+    // Fetch diff from backend
+    setExpandedSha(sha);
+    setDiffLoading(true);
+    setDiffError(null);
+
+    try {
+      const { owner, repo } = parseOwnerRepo(repoUrl);
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/analyze/commit-diff`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ owner, repo, sha }),
+      });
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => null);
+        throw new Error(errData?.error?.message || 'Failed to fetch commit diff.');
+      }
+
+      const data = await response.json();
+      setDiffCache((prev) => ({ ...prev, [sha]: data.files }));
+    } catch (err) {
+      setDiffError(err.message || 'Failed to load diff.');
+    } finally {
+      setDiffLoading(false);
+    }
+  };
+
+  // Classify patch lines for rendering
+  function renderPatchLines(patch) {
+    if (!patch) return [];
+    return patch.split('\n').map((line) => {
+      if (line.startsWith('+') && !line.startsWith('+++')) {
+        return { text: line, type: 'addition' };
+      }
+      if (line.startsWith('-') && !line.startsWith('---')) {
+        return { text: line, type: 'deletion' };
+      }
+      if (line.startsWith('@@')) {
+        return { text: line, type: 'hunk-header' };
+      }
+      return { text: line, type: 'context' };
+    });
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!repoUrl.trim()) return;
@@ -22,6 +93,10 @@ function Analyze() {
     setError('');
     setResult(null);
     setActiveTab('summary');
+    setExpandedSha(null);
+    setDiffCache({});
+    setDiffLoading(false);
+    setDiffError(null);
 
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/analyze`, {
@@ -180,16 +255,111 @@ function Analyze() {
                   </h2>
                   <div className="space-y-2 max-h-[calc(100vh-300px)] overflow-y-auto pr-2">
                     {result.commits.map((commit, index) => (
-                      <div key={index} className="flex items-start gap-4 p-3 rounded-lg bg-gray-800/30 border border-gray-700/30 hover:border-gray-600 transition-colors">
-                        <span className="font-mono text-xs text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded shrink-0 mt-0.5">
-                          {commit.sha}
-                        </span>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-gray-200 text-sm">{commit.message}</p>
-                          <p className="text-gray-500 text-xs mt-1">
-                            {commit.author} • {commit.date}
-                          </p>
+                      <div key={index}>
+                        {/* Commit Row - Clickable */}
+                        <div
+                          onClick={() => handleCommitClick(commit.sha)}
+                          className={`flex items-start gap-4 p-3 rounded-lg bg-gray-800/30 border cursor-pointer transition-colors ${
+                            expandedSha === commit.sha
+                              ? 'border-emerald-500/40 bg-gray-800/50'
+                              : 'border-gray-700/30 hover:border-gray-600'
+                          }`}
+                        >
+                          <span className="font-mono text-xs text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded shrink-0 mt-0.5">
+                            {commit.shortSha || commit.sha?.slice(0, 7)}
+                          </span>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-gray-200 text-sm">{commit.message}</p>
+                            <p className="text-gray-500 text-xs mt-1">
+                              {commit.author} • {commit.date}
+                            </p>
+                          </div>
+                          <ChevronDown
+                            className={`w-4 h-4 text-gray-500 shrink-0 mt-1 transition-transform duration-200 ${
+                              expandedSha === commit.sha ? 'rotate-180 text-emerald-400' : ''
+                            }`}
+                          />
                         </div>
+
+                        {/* Diff Panel - Expanded */}
+                        {expandedSha === commit.sha && (
+                          <div className="mt-1 p-4 rounded-lg border border-gray-700/50 bg-gray-950/80">
+                            {/* Loading State */}
+                            {diffLoading && (
+                              <div className="flex items-center gap-2 text-gray-400 text-sm py-2">
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                Loading diff...
+                              </div>
+                            )}
+
+                            {/* Error State */}
+                            {diffError && !diffLoading && (
+                              <div className="flex items-center gap-2 text-red-400 text-sm py-2">
+                                <AlertTriangle className="w-4 h-4" />
+                                {diffError}
+                              </div>
+                            )}
+
+                            {/* Diff Content */}
+                            {diffCache[commit.sha] && !diffLoading && (
+                              <div className="space-y-4">
+                                {diffCache[commit.sha].length === 0 && (
+                                  <p className="text-gray-500 text-sm">No file changes found.</p>
+                                )}
+                                {diffCache[commit.sha].map((file, fileIdx) => (
+                                  <div key={fileIdx} className="border border-gray-700/40 rounded-lg overflow-hidden">
+                                    {/* File Header */}
+                                    <div className="flex items-center gap-3 px-3 py-2 bg-gray-800/60 border-b border-gray-700/40">
+                                      <span className={`text-xs font-medium px-2 py-0.5 rounded ${
+                                        file.status === 'added' ? 'bg-green-500/20 text-green-400' :
+                                        file.status === 'removed' ? 'bg-red-500/20 text-red-400' :
+                                        'bg-yellow-500/20 text-yellow-400'
+                                      }`}>
+                                        {file.status}
+                                      </span>
+                                      <span className="font-mono text-xs text-gray-200 flex-1 truncate">
+                                        {file.filename}
+                                      </span>
+                                      <span className="text-green-400 text-xs font-mono">+{file.additions}</span>
+                                      <span className="text-red-400 text-xs font-mono">-{file.deletions}</span>
+                                    </div>
+
+                                    {/* Patch Content */}
+                                    {file.patch && (
+                                      <div className="overflow-x-auto max-h-80 overflow-y-auto">
+                                        <pre className="text-xs leading-5">
+                                          {renderPatchLines(file.patch).map((line, lineIdx) => (
+                                            <div
+                                              key={lineIdx}
+                                              className={`px-3 ${
+                                                line.type === 'addition'
+                                                  ? 'bg-green-500/10 text-green-300'
+                                                  : line.type === 'deletion'
+                                                  ? 'bg-red-500/10 text-red-300'
+                                                  : line.type === 'hunk-header'
+                                                  ? 'bg-blue-500/10 text-blue-300'
+                                                  : 'text-gray-400'
+                                              }`}
+                                            >
+                                              {line.text}
+                                            </div>
+                                          ))}
+                                        </pre>
+                                      </div>
+                                    )}
+
+                                    {/* Binary or no patch */}
+                                    {!file.patch && (
+                                      <div className="px-3 py-2 text-gray-500 text-xs italic">
+                                        Binary file or no diff available
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>

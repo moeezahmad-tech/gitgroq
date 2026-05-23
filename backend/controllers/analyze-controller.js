@@ -1,4 +1,4 @@
-const { analyzeUrl } = require('../services/analyze-service');
+const { analyzeUrl, fetchCommitDetails } = require('../services/analyze-service');
 const Groq = require('groq-sdk');
 const axios = require('axios');
 
@@ -125,4 +125,39 @@ async function getFileContent(req, res, next) {
   }
 }
 
-module.exports = { analyze, summarizeFile, getFileContent };
+/**
+ * POST /api/analyze/commit-diff
+ * Accepts { owner, repo, sha } and returns the files changed in that commit with patches.
+ */
+async function getCommitDiff(req, res, next) {
+  try {
+    const { owner, repo, sha } = req.body;
+
+    if (!owner || !repo || !sha) {
+      return res.status(400).json({
+        error: { message: '"owner", "repo", and "sha" fields are required.' },
+      });
+    }
+
+    const commitData = await fetchCommitDetails(owner, repo, sha);
+    const files = (commitData.files || []).map((f) => ({
+      filename: f.filename,
+      status: f.status,
+      additions: f.additions,
+      deletions: f.deletions,
+      patch: f.patch || '',
+    }));
+
+    return res.status(200).json({ files });
+  } catch (err) {
+    if (err.response && err.response.status === 404) {
+      return res.status(404).json({ error: { message: 'Commit not found.' } });
+    }
+    if (err.response && err.response.status === 403) {
+      return res.status(429).json({ error: { message: 'GitHub API rate limit exceeded.' } });
+    }
+    next(err);
+  }
+}
+
+module.exports = { analyze, summarizeFile, getFileContent, getCommitDiff };

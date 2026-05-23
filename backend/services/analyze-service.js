@@ -145,7 +145,8 @@ async function analyzeUrl(url) {
     ];
 
     commits = allCommits.map((c) => ({
-      sha: c.sha.slice(0, 7),
+      sha: c.sha,
+      shortSha: c.sha.slice(0, 7),
       message: c.commit.message.split('\n')[0],
       author: c.commit.author.name,
       date: new Date(c.commit.author.date).toLocaleDateString(),
@@ -179,4 +180,4 @@ async function analyzeUrl(url) {
   };
 }
 
-module.exports = { analyzeUrl, parseGitHubUrl };
+module.exports = { analyzeUrl, parseGitHubUrl, fetchCommitDetails };
