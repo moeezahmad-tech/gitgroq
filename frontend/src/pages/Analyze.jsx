@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, GitCommitHorizontal, Loader2, FileCode, AlertTriangle, FolderTree, Clock, LayoutDashboard, Info, Circle, Code2, ChevronDown, Sparkles } from 'lucide-react';
+import { Search, GitCommitHorizontal, Loader2, FileCode, AlertTriangle, FolderTree, Clock, LayoutDashboard, Info, Circle, Code2, ChevronDown, Sparkles, Menu } from 'lucide-react';
 import FileTreeComponent from '../components/FileTree';
 import BubbleView from '../components/BubbleView';
 import CodeViewer from '../components/CodeViewer';
@@ -23,6 +23,9 @@ function Analyze() {
   // AI summary state for commits
   const [summaryCache, setSummaryCache] = useState({});
   const [summaryLoading, setSummaryLoading] = useState(false);
+
+  // Mobile sidebar dropdown state
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Extract owner/repo from the URL for commit-diff API calls
   function parseOwnerRepo(url) {
@@ -163,31 +166,31 @@ function Analyze() {
   ];
 
   return (
-    <main className="w-full px-6 mb-6">
+    <main className="w-full px-4 sm:px-6 mb-6">
       {/* Header + Search, centered like Home page */}
-      <section className="py-16 text-center max-w-6xl mx-auto">
-        <h1 className="text-4xl font-bold mb-3 tracking-tight">
+      <section className="py-10 sm:py-16 text-center max-w-6xl mx-auto">
+        <h1 className="text-3xl sm:text-4xl font-bold mb-3 tracking-tight">
           Analyze a <span className="text-emerald-400">Repository</span>
         </h1>
-        <p className="text-lg text-gray-400 max-w-xl mx-auto mb-8">
+        <p className="text-base sm:text-lg text-gray-400 max-w-xl mx-auto mb-6 sm:mb-8 px-2">
           Paste a GitHub repo URL or commit link to get a full breakdown.
         </p>
         <form onSubmit={handleSubmit} className="max-w-2xl mx-auto">
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
               <input
                 type="text"
                 value={repoUrl}
                 onChange={(e) => setRepoUrl(e.target.value)}
-                placeholder="https://github.com/user/repo or commit URL..."
-                className="w-full pl-12 pr-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none focus:border-emerald-500 transition-colors"
+                placeholder="https://github.com/user/repo..."
+                className="w-full pl-12 pr-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none focus:border-emerald-500 transition-colors text-sm sm:text-base"
               />
             </div>
             <button
               type="submit"
               disabled={loading || !repoUrl.trim()}
-              className="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 disabled:bg-gray-700 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors flex items-center gap-2"
+              className="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 disabled:bg-gray-700 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
             >
               {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <GitCommitHorizontal className="w-5 h-5" />}
               {loading ? 'Analyzing...' : 'Analyze'}
@@ -206,12 +209,58 @@ function Analyze() {
 
       {/* Results with Sidebar */}
       {result && (
-        <div className="w-full flex gap-6">
-          {/* Sidebar */}
-          <aside className="w-56 shrink-0">
+        <div className="w-full flex flex-col lg:flex-row gap-4 lg:gap-6">
+          {/* Mobile Tab Dropdown */}
+          <div className="lg:hidden">
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-gray-800 bg-gray-900/50 text-sm"
+            >
+              <div className="flex items-center gap-2 text-gray-200">
+                <Menu className="w-4 h-4 text-emerald-400" />
+                <span>{sidebarItems.find((i) => i.id === activeTab)?.label || 'Select Section'}</span>
+              </div>
+              <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${sidebarOpen ? 'rotate-180' : ''}`} />
+            </button>
+            {sidebarOpen && (
+              <div className="mt-2 p-2 rounded-xl border border-gray-800 bg-gray-900/90 backdrop-blur-sm space-y-1">
+                {sidebarItems.map((item) => {
+                  if (item.id === 'files' && (!result.files || result.files.length === 0)) return null;
+                  if (item.id === 'commits' && (!result.commits || result.commits.length === 0)) return null;
+                  if (item.id === 'filetree' && (!result.fileTree || result.fileTree.length === 0)) return null;
+                  if (item.id === 'bubbles' && (!result.fileTree || result.fileTree.length === 0)) return null;
+                  if (item.id === 'code' && (!result.fileTree || result.fileTree.length === 0)) return null;
+
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => { setActiveTab(item.id); setSidebarOpen(false); }}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
+                        activeTab === item.id
+                          ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                          : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50 border border-transparent'
+                      }`}
+                    >
+                      <item.icon className="w-4 h-4 shrink-0" />
+                      <span className="flex-1 text-left">{item.label}</span>
+                      {item.count != null && (
+                        <span className={`text-xs px-1.5 py-0.5 rounded ${
+                          activeTab === item.id ? 'bg-emerald-500/20 text-emerald-300' : 'bg-gray-800 text-gray-500'
+                        }`}>
+                          {item.count}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Desktop Sidebar */}
+          <aside className="hidden lg:block w-56 shrink-0">
             <nav className="sticky top-24 space-y-1 p-3 rounded-xl border border-gray-800 bg-gray-900/50">
               {sidebarItems.map((item) => {
-                // Hide tabs with no data
                 if (item.id === 'files' && (!result.files || result.files.length === 0)) return null;
                 if (item.id === 'commits' && (!result.commits || result.commits.length === 0)) return null;
                 if (item.id === 'filetree' && (!result.fileTree || result.fileTree.length === 0)) return null;

@@ -2,31 +2,31 @@ import { GitCommitHorizontal, Zap, Shield, History } from 'lucide-react';
 
 function Home() {
   return (
-    <main className="max-w-6xl mx-auto px-6">
+    <main className="max-w-6xl mx-auto px-4 sm:px-6">
       {/* Hero Section */}
-      <section className="py-24 text-center">
+      <section className="py-16 sm:py-24 text-center">
         <div className="flex justify-center mb-6">
-          <img src="/GitGrok.png" alt="GitGrok Logo" className="w-20 h-20 rounded-2xl" style={{ filter: "drop-shadow(0 4px 6px rgba(16, 185, 129, 0.2))" }} />
+          <img src="/GitGrok.png" alt="GitGrok Logo" className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl" style={{ filter: "drop-shadow(0 4px 6px rgba(16, 185, 129, 0.2))" }} />
         </div>
-        <h1 className="text-5xl font-bold mb-4 tracking-tight">
+        <h1 className="text-3xl sm:text-5xl font-bold mb-4 tracking-tight px-2">
           Understand any Repository in
           <span className="text-emerald-400"> plain language</span>
         </h1>
-        <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-8">
+        <p className="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto mb-8 px-2">
           Paste a commit hash or diff, and GitGrok explains what changed, why it likely changed, and what impact it has.
         </p>
-        <div className="flex justify-center gap-4">
-          <a href="/analyze" className="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-lg transition-colors">
+        <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 px-4">
+          <a href="/analyze" className="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-lg transition-colors text-center">
             Try It Now
           </a>
-          <a href="/about" className="px-6 py-3 border border-gray-700 hover:border-gray-500 text-gray-300 font-medium rounded-lg transition-colors">
+          <a href="/about" className="px-6 py-3 border border-gray-700 hover:border-gray-500 text-gray-300 font-medium rounded-lg transition-colors text-center">
             Learn More
           </a>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-16 grid md:grid-cols-3 gap-8">
+      <section className="py-12 sm:py-16 grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
         <div className="p-6 rounded-xl border border-gray-800 bg-gray-900/50">
           <Zap className="w-8 h-8 text-emerald-400 mb-4" />
           <h3 className="text-lg font-semibold mb-2">Commit Explanation</h3>
@@ -94,7 +94,7 @@ function Home() {
           </div>
 
           {/* Row 2: Text left, Image right (reverse) */}
-          <div className="flex flex-wrap-reverse md:flex-wrap items-center gap-8 md:flex-row-reverse">
+          <div className="flex flex-wrap md:flex-wrap items-center gap-8 md:flex-row-reverse">
             <div className="flex-1 min-w-[300px]">
               <img src="/FileTree.png" alt="File tree view showing repository structure" className="w-full rounded-xl" />
             </div>
