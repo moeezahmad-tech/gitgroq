@@ -82,7 +82,7 @@ GitGrok/
 
 - **Node.js** v18+
 - **MongoDB** running locally or a cloud URI
-- **npm** or **yarn**
+- **npm** 
 
 ### 1. Clone the repository
 
@@ -252,6 +252,6 @@ This project is licensed under the MIT License — see the [LICENSE](LICENSE) fi
 ---
 
 <p align="center">
-  Built with ☕ and curiosity.<br/>
+  A project of (Techkreative.)[https://techkreative.com]<br/>
   <strong>GitGrok</strong> — Understand code, not just read it.
 </p>
