@@ -92,7 +92,6 @@ frontend
 4. **Routes** are thin — map HTTP verbs to controllers
 5. **Components** follow separation — presentational vs. feature vs. page
 
-
 ---
 
 ## Shared Conventions
