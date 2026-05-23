@@ -160,4 +160,58 @@ async function getCommitDiff(req, res, next) {
   }
 }
 
-module.exports = { analyze, summarizeFile, getFileContent, getCommitDiff };
+/**
+ * POST /api/analyze/summarize-commit
+ * Accepts { message, files } where files is an array of { filename, status, additions, deletions }.
+ * Returns an AI-generated summary of what the commit does.
+ */
+async function summarizeCommit(req, res, next) {
+  try {
+    const { message, files } = req.body;
+
+    if (!message || !files) {
+      return res.status(400).json({
+        error: { message: 'Both "message" and "files" fields are required.' },
+      });
+    }
+
+    // Build a concise description of the commit for the AI
+    const fileList = files
+      .slice(0, 20) // Limit to 20 files to avoid token overflow
+      .map((f) => `  ${f.status}: ${f.filename} (+${f.additions} -${f.deletions})`)
+      .join('\n');
+
+    const prompt = `Commit message: "${message}"\n\nFiles changed:\n${fileList}${files.length > 20 ? `\n  ... and ${files.length - 20} more files` : ''}`;
+
+    const chatCompletion = await groq.chat.completions.create({
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a code review assistant. Given a commit message and list of changed files, provide a brief, clear summary of what this commit does and its impact. Focus on the purpose and key changes. Keep it to 2-3 sentences. Do not use markdown formatting.',
+        },
+        {
+          role: 'user',
+          content: prompt,
+        },
+      ],
+      model: 'llama-3.3-70b-versatile',
+      temperature: 0.3,
+      max_tokens: 200,
+    });
+
+    const summary = chatCompletion.choices[0]?.message?.content || 'Unable to generate summary.';
+
+    return res.status(200).json({ summary });
+  } catch (err) {
+    console.error('Summarize commit error:', err.message || err);
+    if (err.status === 401 || err.message?.includes('API key') || err.message?.includes('auth')) {
+      return res.status(500).json({ error: { message: 'Groq API key is not configured or invalid.' } });
+    }
+    if (err.status === 403) {
+      return res.status(500).json({ error: { message: 'Groq API returned 403 - check your API key.' } });
+    }
+    next(err);
+  }
+}
+
+module.exports = { analyze, summarizeFile, getFileContent, getCommitDiff, summarizeCommit };

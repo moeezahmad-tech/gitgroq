@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, GitCommitHorizontal, Loader2, FileCode, AlertTriangle, FolderTree, Clock, LayoutDashboard, Info, Circle, Code2, ChevronDown } from 'lucide-react';
+import { Search, GitCommitHorizontal, Loader2, FileCode, AlertTriangle, FolderTree, Clock, LayoutDashboard, Info, Circle, Code2, ChevronDown, Sparkles } from 'lucide-react';
 import FileTreeComponent from '../components/FileTree';
 import BubbleView from '../components/BubbleView';
 import CodeViewer from '../components/CodeViewer';
@@ -19,6 +19,10 @@ function Analyze() {
   const [diffCache, setDiffCache] = useState({});
   const [diffLoading, setDiffLoading] = useState(false);
   const [diffError, setDiffError] = useState(null);
+
+  // AI summary state for commits
+  const [summaryCache, setSummaryCache] = useState({});
+  const [summaryLoading, setSummaryLoading] = useState(false);
 
   // Extract owner/repo from the URL for commit-diff API calls
   function parseOwnerRepo(url) {
@@ -61,6 +65,33 @@ function Analyze() {
 
       const data = await response.json();
       setDiffCache((prev) => ({ ...prev, [sha]: data.files }));
+
+      // Fetch AI summary for this commit (non-blocking)
+      const commit = result?.commits?.find((c) => c.sha === sha);
+      if (commit && !summaryCache[sha]) {
+        setSummaryLoading(true);
+        fetch(`${import.meta.env.VITE_API_URL}/api/analyze/summarize-commit`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: commit.message,
+            files: data.files.map((f) => ({
+              filename: f.filename,
+              status: f.status,
+              additions: f.additions,
+              deletions: f.deletions,
+            })),
+          }),
+        })
+          .then((res) => res.json())
+          .then((summaryData) => {
+            if (summaryData.summary) {
+              setSummaryCache((prev) => ({ ...prev, [sha]: summaryData.summary }));
+            }
+          })
+          .catch(() => {}) // Silently fail — summary is optional
+          .finally(() => setSummaryLoading(false));
+      }
     } catch (err) {
       setDiffError(err.message || 'Failed to load diff.');
     } finally {
@@ -97,6 +128,8 @@ function Analyze() {
     setDiffCache({});
     setDiffLoading(false);
     setDiffError(null);
+    setSummaryCache({});
+    setSummaryLoading(false);
 
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/analyze`, {
@@ -303,6 +336,19 @@ function Analyze() {
                             {/* Diff Content */}
                             {diffCache[commit.sha] && !diffLoading && (
                               <div className="space-y-4">
+                                {/* AI Summary */}
+                                {summaryCache[commit.sha] && (
+                                  <div className="flex items-start gap-2 p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/20">
+                                    <Sparkles className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                                    <p className="text-gray-300 text-sm leading-relaxed">{summaryCache[commit.sha]}</p>
+                                  </div>
+                                )}
+                                {summaryLoading && expandedSha === commit.sha && !summaryCache[commit.sha] && (
+                                  <div className="flex items-center gap-2 p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/20">
+                                    <Sparkles className="w-4 h-4 text-emerald-400 animate-pulse" />
+                                    <span className="text-gray-400 text-sm">Generating AI summary...</span>
+                                  </div>
+                                )}
                                 {diffCache[commit.sha].length === 0 && (
                                   <p className="text-gray-500 text-sm">No file changes found.</p>
                                 )}
